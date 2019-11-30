@@ -4,8 +4,7 @@ const mongoose = require("mongoose");
 
 const app = express();
 mongoose
-  // .connect("mongodb://localhost/facturapp")
-  .connect(process.env.MONGODB_URI)
+  .connect(process.env.MONGODB_URI || "mongodb://localhost/facturapp")
   .then(db => console.log("database is connected"))
   .catch(err => console.log(err));
 
