@@ -4,9 +4,7 @@ const mongoose = require("mongoose");
 
 const app = express();
 mongoose
-  .connect(
-    "mongodb://heroku_6n530p7d:heroku_6n530p7d@ds251158.mlab.com:51158/heroku_6n530p7d"
-  )
+  .connect("mongodb://fede:Fede1988@ds251158.mlab.com:51158/heroku_6n530p7d")
   .then(db => console.log("database is connected"))
   .catch(err => console.log(err));
 
