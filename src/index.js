@@ -4,7 +4,9 @@ const mongoose = require("mongoose");
 
 const app = express();
 mongoose
-  .connect(process.env.MONGODB_URI || "mongodb://localhost/facturapp")
+  .connect(
+    "mongodb://heroku_6n530p7d:heroku_6n530p7d@ds251158.mlab.com:51158/heroku_6n530p7d"
+  )
   .then(db => console.log("database is connected"))
   .catch(err => console.log(err));
 
