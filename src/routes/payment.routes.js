@@ -13,9 +13,9 @@ router.get("/", async (req, res) => {
 // Add Payment
 router.post("/", async (req, res) => {
   const { date, amount, dollar } = req.body;
-  if (!date || !amount) {
-    return res.status(422).json({ message: "Validation failed." });
-  }
+  // if (!date || !amount) {
+  //   return res.status(422).json({ message: "Validation failed." });
+  // }
 
   const payment = new Payment({ date, amount, dollar });
   await payment.save();
