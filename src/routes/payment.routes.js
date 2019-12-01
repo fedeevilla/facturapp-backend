@@ -6,46 +6,71 @@ const Payment = require("../models/payment");
 
 // GET All Payments
 router.get("/", async (req, res) => {
-  const payments = await Payment.find();
-  res.json(payments);
+  try {
+    const payments = await Payment.find();
+    res.json(payments);
+  } catch ({ message }) {
+    res.status(422).json({ message });
+  }
+});
+
+//GET By ID
+router.get("/:id", async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(422).json({
+        message: "Invalid ID."
+      });
+    }
+
+    const payment = await Payment.findById(req.params.id);
+    if (!payment) {
+      return res.status(422).json({
+        message: "Could not find payment."
+      });
+    } else {
+      res.json(payment);
+    }
+  } catch ({ message }) {
+    res.status(422).json({ message });
+  }
 });
 
 // Add Payment
 router.post("/", async (req, res) => {
-  const { date, amount, dollar } = req.body;
-  // if (!date || !amount) {
-  //   return res.status(422).json({ message: "Validation failed." });
-  // }
+  try {
+    const { date, amount, dollar } = req.body;
 
-  const payment = new Payment({ date, amount, dollar });
-  await payment.save();
-  res.json(payment);
+    const payment = new Payment({ date, amount, dollar });
+    await payment.save();
+    res.json(payment);
+  } catch ({ message }) {
+    res.status(422).json({ message });
+  }
 });
 
 //Delete Payment
 router.delete("/:id", async (req, res) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    return res.status(422).json({
-      message: "Invalid ID."
-    });
-  }
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(422).json({
+        message: "Invalid ID."
+      });
+    }
 
-  const payment = await Payment.findById(req.params.id);
-  if (!payment) {
-    return res.status(422).json({
-      message: "Could not find payment."
-    });
-  }
+    const payment = await Payment.findById(req.params.id);
+    if (!payment) {
+      return res.status(422).json({
+        message: "Could not find payment."
+      });
+    }
 
-  await Payment.findByIdAndRemove(req.params.id);
-  res.json({ status: "Payment Deleted" });
+    await Payment.findByIdAndRemove(req.params.id);
+    res.json({ status: "Payment Deleted" });
+  } catch ({ message }) {
+    res.status(422).json({ message });
+  }
 });
-
-// GET By ID
-// router.get("/:id", async (req, res) => {
-//   const payment = await Payment.findById(req.params.id);
-//   res.json(payment);
-// });
 
 // Edit Payment
 // router.put("/:id", async (req, res) => {
