@@ -26,6 +26,7 @@ app.use(cors());
 
 //Routes
 app.use("/api/payments", require("./routes/payment.routes"));
+app.use("/api/user", require("./routes/user.routes"));
 
 //Starting server
 app.listen(app.get("port"), () => {
