@@ -32,7 +32,7 @@ router.post("/signup", async (req, res) => {
     const token = jwt.sign({ _id: savedUser._id }, process.env.SECRET_TOKEN, {
       expiresIn: "24h"
     });
-    res.send({
+    res.json({
       token,
       _id: savedUser._id,
       email: savedUser.email,
