@@ -34,9 +34,9 @@ router.post("/signup", async (req, res) => {
     });
     res.json({
       token,
-      _id: savedUser._id,
-      email: savedUser.email,
-      name: savedUser.name
+      _id: user._id,
+      email: user.email,
+      name: user.name
     });
   } catch (err) {
     res.status(400).send(err);
