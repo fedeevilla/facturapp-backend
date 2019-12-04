@@ -3,9 +3,10 @@ const router = express.Router();
 const mongoose = require("mongoose");
 
 const Payment = require("../models/payment");
+const isAuth = require("../isAuth");
 
 // GET All Payments
-router.get("/", async (req, res) => {
+router.get("/", isAuth, async (req, res) => {
   try {
     const payments = await Payment.find();
     res.json(payments);
