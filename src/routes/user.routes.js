@@ -30,7 +30,7 @@ router.post("/signup", async (req, res) => {
 
     // ASSIGN TOKEN
     const token = jwt.sign({ _id: savedUser._id }, process.env.SECRET_TOKEN);
-    res.header("token", token).send({
+    res.send({
       token,
       _id: savedUser._id,
       email: savedUser.email,
