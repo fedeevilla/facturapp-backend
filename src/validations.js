@@ -34,5 +34,14 @@ const loginValidation = data => {
   return schema.validate(data);
 };
 
+const fetchValidation = data => {
+  const schema = Joi.object({
+    idUser: Joi.string().required()
+  });
+
+  return schema.validate(data);
+};
+
 module.exports.signupValidation = signupValidation;
 module.exports.loginValidation = loginValidation;
+module.exports.fetchValidation = fetchValidation;

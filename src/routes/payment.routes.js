@@ -8,7 +8,7 @@ const isAuth = require("../isAuth");
 // GET All Payments
 router.get("/", isAuth, async (req, res) => {
   try {
-    const payments = await Payment.find();
+    const payments = await Payment.find({ idUser: req.body.idUser });
     res.json(payments);
   } catch ({ message }) {
     res.status(422).json({ message });

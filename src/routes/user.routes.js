@@ -1,7 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/user");
-const { signupValidation, loginValidation } = require("../validations");
+const {
+  signupValidation,
+  loginValidation,
+  fetchValidation
+} = require("../validations");
 const brcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -65,6 +69,17 @@ router.post("/login", async (req, res) => {
   res
     .header("token", token)
     .send({ token, _id: user._id, email: user.email, name: user.name });
+});
+
+router.post("/fetch", async (req, res) => {
+  // VALIDATIONS
+  const { error } = fetchValidation(req.body);
+  if (error) return res.status(400).send({ message: error.details[0].message });
+
+  const user = await User.findOne({ _id: req.body.idUser });
+  if (!user) return res.status(400).send({ message: "User does not exists" });
+
+  res.send(user);
 });
 
 module.exports = router;
