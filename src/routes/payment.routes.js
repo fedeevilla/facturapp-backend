@@ -3,82 +3,63 @@ const router = express.Router();
 const mongoose = require("mongoose");
 
 const Payment = require("../models/payment");
-const isAuth = require("../isAuth");
+const isAuth = require("../middlewares/isAuth");
+const isOwner = require("../middlewares/isOwner");
+const {
+  createPaymentValidation
+} = require("../validations/paymentValidations");
 
-// GET All Payments
+// GET All User Payments
 router.get("/", isAuth, async (req, res) => {
   try {
-    const payments = await Payment.find({ idUser: req.body.idUser });
+    const payments = await Payment.find({ idUser: req.user._id });
     res.json(payments);
-  } catch ({ message }) {
-    res.status(422).json({ message });
+  } catch (err) {
+    res.status(400).send(err);
   }
 });
 
 //GET By ID
-router.get("/:id", async (req, res) => {
+router.get("/:id", isAuth, isOwner, async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(422).json({
-        message: "Invalid ID."
-      });
-    }
-
-    const payment = await Payment.findById(req.params.id);
-    if (!payment) {
-      return res.status(422).json({
-        message: "Could not find payment."
-      });
-    } else {
-      res.json(payment);
-    }
-  } catch ({ message }) {
-    res.status(422).json({ message });
+    return res.json(req.payment);
+  } catch (err) {
+    res.status(400).send(err);
   }
 });
 
 // Add Payment
-router.post("/", async (req, res) => {
-  try {
-    const { date, amount, dollar } = req.body;
+router.post("/", isAuth, async (req, res) => {
+  // VALIDATIONS
+  const { error } = createPaymentValidation(req.body);
+  if (error) return res.status(400).send({ message: error.details[0].message });
 
-    const payment = new Payment({ date, amount, dollar });
-    await payment.save();
-    res.json(payment);
-  } catch ({ message }) {
-    res.status(422).json({ message });
-  }
+  const { date, amount, dollar } = req.body;
+
+  const payment = new Payment({ date, amount, dollar, idUser: req.user._id });
+  await payment.save();
+  res.json(payment);
 });
 
 //Delete Payment
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", isAuth, isOwner, async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(422).json({
-        message: "Invalid ID."
-      });
-    }
-
-    const payment = await Payment.findById(req.params.id);
-    if (!payment) {
-      return res.status(422).json({
-        message: "Could not find payment."
-      });
-    }
-
-    await Payment.findByIdAndRemove(req.params.id);
-    res.json({ status: "Payment Deleted" });
-  } catch ({ message }) {
-    res.status(422).json({ message });
+    req.payment.remove();
+    res.json({ status: "Payment Deleted." });
+  } catch (err) {
+    res.status(400).send(err);
   }
 });
 
 // Edit Payment
-// router.put("/:id", async (req, res) => {
-//   const { date, amount, dollar } = req.body;
-//   const newPayment = { date, amount, dollar };
-//   await Payment.findByIdAndUpdate(req.params.id, newPayment);
-//   res.json(newPayment);
+// router.put("/:id", isAuth, isOwner, async (req, res) => {
+//   try {
+//     await Payment.findByIdAndUpdate(req.payment._id, req.body);
+
+//     res.json({ payment: req.body });
+//   } catch (err) {
+//     res.status(400).send(err);
+//   }
 // });
 
 module.exports = router;

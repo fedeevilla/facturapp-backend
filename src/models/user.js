@@ -8,4 +8,11 @@ const UserSchema = new Schema({
   createdAt: { type: Number, default: new Date().getTime() }
 });
 
+UserSchema.methods.toJSON = function() {
+  var obj = this.toObject();
+  delete obj.password;
+  delete obj.__v;
+  return obj;
+};
+
 module.exports = mongoose.model("Users", UserSchema);

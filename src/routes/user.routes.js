@@ -3,9 +3,9 @@ const router = express.Router();
 const User = require("../models/user");
 const {
   signupValidation,
-  loginValidation,
-  fetchValidation
-} = require("../validations");
+  loginValidation
+} = require("../validations/userValidations");
+const isAuth = require("../middlewares/isAuth");
 const brcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -24,27 +24,21 @@ router.post("/signup", async (req, res) => {
 
   // CREATE USER
   try {
-    const user = new User({
+    const userDB = new User({
       name: req.body.name,
       email: req.body.email,
       password: hashedPassword
     });
 
-    const savedUser = await user.save();
+    const user = await userDB.save();
 
     // ASSIGN TOKEN
-    const token = await jwt.sign(
-      { _id: savedUser._id },
-      process.env.SECRET_TOKEN,
-      {
-        expiresIn: "24h"
-      }
-    );
+    const token = jwt.sign({ user }, process.env.SECRET_TOKEN, {
+      expiresIn: "24h"
+    });
     res.json({
-      token,
-      _id: user._id,
-      email: user.email,
-      name: user.name
+      user,
+      token
     });
   } catch (err) {
     res.status(400).send(err);
@@ -61,22 +55,17 @@ router.post("/login", async (req, res) => {
     return res.status(400).send({ message: "User or password incorrect" });
 
   const validPassword = await brcrypt.compare(req.body.password, user.password);
+
   if (!validPassword)
     return res.status(400).send({ message: "User or password incorrect" });
 
   // ASSIGN TOKEN
-  const token = jwt.sign({ _id: user._id }, process.env.SECRET_TOKEN);
-  res
-    .header("token", token)
-    .send({ token, _id: user._id, email: user.email, name: user.name });
+  const token = jwt.sign({ user }, process.env.SECRET_TOKEN);
+  res.header("token", token).send({ user, token });
 });
 
-router.post("/fetch", async (req, res) => {
-  // VALIDATIONS
-  const { error } = fetchValidation(req.body);
-  if (error) return res.status(400).send({ message: error.details[0].message });
-
-  const user = await User.findOne({ _id: req.body.idUser });
+router.get("/fetch", isAuth, async (req, res) => {
+  const user = await User.findOne({ _id: req.user._id });
   if (!user) return res.status(400).send({ message: "User does not exists" });
 
   res.send(user);
