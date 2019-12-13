@@ -15,7 +15,7 @@ const isOwner = async (req, res, next) => {
   }
 
   if (payment.idUser !== req.user._id) {
-    return res.status(422).json({
+    return res.status(401).json({
       message: "Access Denied"
     });
   }
