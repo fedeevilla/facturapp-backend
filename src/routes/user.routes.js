@@ -8,6 +8,7 @@ const {
 const isAuth = require("../middlewares/isAuth");
 const brcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const R = require("ramda");
 
 router.post("/signup", async (req, res) => {
   // VALIDATIONS
@@ -88,11 +89,12 @@ router.patch("/profile", isAuth, async (req, res) => {
 
     let query = { $set: {} };
     for (let key in req.body) {
-      if (user[key] && user[key] !== req.body[key])
+      if (R.propOr(true, user[key]) && user[key] !== req.body[key]) {
         query.$set[key] = req.body[key];
+      }
     }
 
-    await User.findByIdAndUpdate({ _id: req.user._id }, query);
+    await User.updateOne({ _id: req.user._id }, query);
     const updatedUser = await User.findOne({ _id: req.user._id });
 
     res.send({ user: updatedUser });
