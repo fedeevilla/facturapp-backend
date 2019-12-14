@@ -71,4 +71,34 @@ router.get("/fetch", isAuth, async (req, res) => {
   res.send(user);
 });
 
+router.patch("/profile", isAuth, async (req, res) => {
+  try {
+    const user = await User.findOne({ _id: req.user._id });
+    if (!user)
+      return res.status(400).send({
+        message: "User does not exists"
+      });
+
+    //Email Validation
+    if (req.body.email) {
+      const emailExist = await User.findOne({ email: req.body.email });
+      if (emailExist && emailExist._id != req.user._id)
+        return res.status(400).send({ message: "Email already exists" });
+    }
+
+    let query = { $set: {} };
+    for (let key in req.body) {
+      if (user[key] && user[key] !== req.body[key])
+        query.$set[key] = req.body[key];
+    }
+
+    await User.findByIdAndUpdate({ _id: req.user._id }, query);
+    const updatedUser = await User.findOne({ _id: req.user._id });
+
+    res.send({ user: updatedUser });
+  } catch (err) {
+    res.status(400).send(err);
+  }
+});
+
 module.exports = router;
