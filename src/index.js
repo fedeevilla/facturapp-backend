@@ -8,12 +8,13 @@ const app = express();
 mongoose
   .connect(
     `mongodb://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_URI}`,
+    // `mongodb://localhost:27017`,
     {
       useNewUrlParser: true,
       useUnifiedTopology: true
     }
   )
-  .then(db => console.log("database is connected"))
+  .then(() => console.log("database is connected"))
   .catch(err => console.log(err));
 
 //Settings
