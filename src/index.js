@@ -4,18 +4,14 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const helmet = require("helmet");
 
-require("dotenv/config");
+require("dotenv").config();
 
 const app = express();
 mongoose
-  .connect(
-    `mongodb://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_URI}`,
-    // `mongodb://localhost:27017`,
-    {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    }
-  )
+  .connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
   .then(() => console.log("database is connected"))
   .catch(err => console.log(err));
 
