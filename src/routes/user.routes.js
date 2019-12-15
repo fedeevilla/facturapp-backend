@@ -103,4 +103,33 @@ router.patch("/profile", isAuth, async (req, res) => {
   }
 });
 
+router.put("/password", isAuth, async (req, res) => {
+  try {
+    const compare = await brcrypt.compare(
+      req.body.oldPassword,
+      req.user.password
+    );
+
+    if (!compare) {
+      return res.status(400).send({
+        message: "Wrong password"
+      });
+    }
+
+    // HASH PASSWORD
+    const salt = await brcrypt.genSalt(10);
+    const hashedPassword = await brcrypt.hash(req.body.newPassword, salt);
+
+    await User.updateOne(
+      { _id: req.user._id },
+      {
+        password: hashedPassword
+      }
+    );
+    res.json({ status: "Password changed." });
+  } catch (err) {
+    res.status(400).send(err);
+  }
+});
+
 module.exports = router;
