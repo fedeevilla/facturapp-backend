@@ -105,10 +105,8 @@ router.patch("/profile", isAuth, async (req, res) => {
 
 router.put("/password", isAuth, async (req, res) => {
   try {
-    const compare = await brcrypt.compare(
-      req.body.oldPassword,
-      req.user.password
-    );
+    const user = await User.findById(req.user._id);
+    const compare = await brcrypt.compare(req.body.oldPassword, user.password);
 
     if (!compare) {
       return res.status(400).send({
@@ -126,6 +124,7 @@ router.put("/password", isAuth, async (req, res) => {
         password: hashedPassword
       }
     );
+
     res.json({ status: "Password changed." });
   } catch (err) {
     res.status(400).send(err);
