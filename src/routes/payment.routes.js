@@ -52,14 +52,14 @@ router.delete("/:id", isAuth, isOwner, async (req, res) => {
 });
 
 // Edit Payment
-// router.put("/:id", isAuth, isOwner, async (req, res) => {
-//   try {
-//     await Payment.findByIdAndUpdate(req.payment._id, req.body);
+router.put("/:id", isAuth, isOwner, async (req, res) => {
+  try {
+    await Payment.findByIdAndUpdate(req.payment._id, req.body);
 
-//     res.json({ payment: req.body });
-//   } catch (err) {
-//     res.status(400).send(err);
-//   }
-// });
+    res.json({ _id: req.payment._id, ...req.body });
+  } catch (err) {
+    res.status(400).send(err);
+  }
+});
 
 module.exports = router;
