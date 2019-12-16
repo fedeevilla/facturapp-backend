@@ -32,11 +32,10 @@ router.get("/:id", isAuth, isOwner, async (req, res) => {
 router.post("/", isAuth, async (req, res) => {
   // VALIDATIONS
   const { error } = createPaymentValidation(req.body);
+
   if (error) return res.status(400).send({ message: error.details[0].message });
 
-  const { date, amount, dollar } = req.body;
-
-  const payment = new Payment({ date, amount, dollar, idUser: req.user._id });
+  const payment = new Payment({ ...req.body, idUser: req.user._id });
   await payment.save();
   res.json(payment);
 });

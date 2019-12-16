@@ -5,7 +5,8 @@ const PaymentSchema = new Schema({
   idUser: { type: String, required: true },
   date: { type: Number, required: true },
   amount: { type: Number, required: true },
-  dollar: { type: Number, default: 0 }
+  dollar: { type: Number, default: 0 },
+  pdf: { type: String }
 });
 
 PaymentSchema.methods.toJSON = function() {
