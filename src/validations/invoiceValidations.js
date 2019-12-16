@@ -11,4 +11,4 @@ const createValidation = data => {
   return schema.validate(data);
 };
 
-module.exports.createPaymentValidation = createValidation;
+module.exports.createInvoiceValidation = createValidation;

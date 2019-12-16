@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const PaymentSchema = new Schema({
+const InvoiceSchema = new Schema({
   idUser: { type: String, required: true },
   date: { type: Number, required: true },
   amount: { type: Number, required: true },
@@ -9,10 +9,10 @@ const PaymentSchema = new Schema({
   pdf: { type: String }
 });
 
-PaymentSchema.methods.toJSON = function() {
+InvoiceSchema.methods.toJSON = function() {
   var obj = this.toObject();
   delete obj.__v;
   return obj;
 };
 
-module.exports = mongoose.model("Payments", PaymentSchema);
+module.exports = mongoose.model("Invoices", InvoiceSchema);

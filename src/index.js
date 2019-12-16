@@ -25,7 +25,7 @@ app.use(cors());
 app.use(helmet());
 
 //Routes
-app.use("/api/payments", require("./routes/payment.routes"));
+app.use("/api/invoices", require("./routes/invoice.routes"));
 app.use("/api/user", require("./routes/user.routes"));
 
 //Starting server

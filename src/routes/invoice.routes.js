@@ -2,18 +2,18 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 
-const Payment = require("../models/payment");
+const Invoice = require("../models/invoice");
 const isAuth = require("../middlewares/isAuth");
 const isOwner = require("../middlewares/isOwner");
 const {
-  createPaymentValidation
-} = require("../validations/paymentValidations");
+  createInvoiceValidation
+} = require("../validations/invoiceValidations");
 
-// GET All User Payments
+// GET All User Invoices
 router.get("/", isAuth, async (req, res) => {
   try {
-    const payments = await Payment.find({ idUser: req.user._id });
-    res.json(payments);
+    const invoices = await Invoice.find({ idUser: req.user._id });
+    res.json(invoices);
   } catch (err) {
     res.status(400).send(err);
   }
@@ -22,40 +22,40 @@ router.get("/", isAuth, async (req, res) => {
 //GET By ID
 router.get("/:id", isAuth, isOwner, async (req, res) => {
   try {
-    return res.json(req.payment);
+    return res.json(req.invoice);
   } catch (err) {
     res.status(400).send(err);
   }
 });
 
-// Add Payment
+// Add Invoice
 router.post("/", isAuth, async (req, res) => {
   // VALIDATIONS
-  const { error } = createPaymentValidation(req.body);
+  const { error } = createInvoiceValidation(req.body);
 
   if (error) return res.status(400).send({ message: error.details[0].message });
 
-  const payment = new Payment({ ...req.body, idUser: req.user._id });
-  await payment.save();
-  res.json(payment);
+  const invoice = new Invoice({ ...req.body, idUser: req.user._id });
+  await invoice.save();
+  res.json(invoice);
 });
 
-//Delete Payment
+//Delete Invoice
 router.delete("/:id", isAuth, isOwner, async (req, res) => {
   try {
-    req.payment.remove();
-    res.json({ status: "Payment Deleted." });
+    req.invoice.remove();
+    res.json({ status: "Invoice Deleted." });
   } catch (err) {
     res.status(400).send(err);
   }
 });
 
-// Edit Payment
+// Edit Invoice
 router.put("/:id", isAuth, isOwner, async (req, res) => {
   try {
-    await Payment.findByIdAndUpdate(req.payment._id, req.body);
+    await Invoice.findByIdAndUpdate(req.invoice._id, req.body);
 
-    res.json({ _id: req.payment._id, ...req.body });
+    res.json({ _id: req.invoice._id, ...req.body });
   } catch (err) {
     res.status(400).send(err);
   }

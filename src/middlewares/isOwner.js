@@ -1,4 +1,4 @@
-const Payment = require("../models/payment");
+const Invoice = require("../models/invoice");
 const mongoose = require("mongoose");
 
 const isOwner = async (req, res, next) => {
@@ -7,19 +7,19 @@ const isOwner = async (req, res, next) => {
       message: "Invalid ID."
     });
   }
-  const payment = await Payment.findById(req.params.id);
-  if (!payment) {
+  const invoice = await Invoice.findById(req.params.id);
+  if (!invoice) {
     return res.status(422).json({
-      message: "Could not find payment."
+      message: "Could not find invoice."
     });
   }
 
-  if (payment.idUser !== req.user._id) {
+  if (invoice.idUser !== req.user._id) {
     return res.status(401).json({
       message: "Access Denied"
     });
   }
-  req.payment = payment;
+  req.invoice = invoice;
   next();
 };
 
