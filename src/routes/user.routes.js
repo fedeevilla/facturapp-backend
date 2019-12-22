@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/user");
 const nodemailer = require("nodemailer");
+const Hogan = require("hogan.js");
+const fs = require("fs");
 
 const {
   signupValidation,
@@ -48,11 +50,22 @@ router.post("/signup", async (req, res) => {
       }
     });
 
+    const template = fs.readFileSync(
+      __dirname + "/templateEmailValidation.hjs",
+      "utf-8"
+    );
+
+    const compiledTemplate = Hogan.compile(template);
+
     transporter.sendMail({
       from: process.env.GMAIL_USER,
       to: user.email,
       subject: "Validación de cuenta",
-      html: `Para activar tu cuenta haz click en el siguiente enlace: ${process.env.FACTURAPP_URL}/validate/${token}`
+      html: compiledTemplate.render({
+        name: user.name,
+        token,
+        url: process.env.FACTURAPP_URL
+      })
     });
 
     res.send({ message: "Account created successfully" });
