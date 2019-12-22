@@ -51,7 +51,7 @@ router.post("/signup", async (req, res) => {
     });
 
     const template = fs.readFileSync(
-      __dirname + "/templateEmailValidation.hjs",
+      __dirname + "/views/templateEmailValidation.hjs",
       "utf-8"
     );
 
@@ -96,7 +96,7 @@ router.post("/login", async (req, res) => {
   res.header("token", token).send({ user, token });
 });
 
-router.get("/validate/:token", async (req, res) => {
+router.put("/validate/:token", async (req, res) => {
   const token = req.params.token;
 
   if (!token) return res.status(401).send("Access Denied");
@@ -111,6 +111,76 @@ router.get("/validate/:token", async (req, res) => {
     res.send({ user: validUser, token });
   } catch (err) {
     res.status(422).send("Invalid Token");
+  }
+});
+
+router.get("/recover/", async (req, res) => {
+  try {
+    const email = req.body.email;
+    const user = await User.findOne({ email });
+
+    // ASSIGN TOKEN
+    const token = jwt.sign({ user }, process.env.SECRET_TOKEN, {
+      expiresIn: "24h"
+    });
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASSWORD
+      }
+    });
+
+    const template = fs.readFileSync(
+      __dirname + "/views/templatePasswordRecovery.hjs",
+      "utf-8"
+    );
+
+    const compiledTemplate = Hogan.compile(template);
+
+    transporter.sendMail({
+      from: process.env.GMAIL_USER,
+      to: user.email,
+      subject: "Recuperar contraseña",
+      html: compiledTemplate.render({
+        name: user.name,
+        token,
+        url: process.env.FACTURAPP_URL
+      })
+    });
+
+    res.send({ message: "Email sended" });
+  } catch (err) {
+    res.status(422).send(err);
+  }
+});
+
+router.put("/recover/:token", async (req, res) => {
+  try {
+    const password = req.body.password;
+    const token = req.params.token;
+
+    if (!token) return res.status(401).send("Access Denied");
+
+    const { user } = jwt.verify(token, process.env.SECRET_TOKEN);
+
+    if (!user) {
+      res.status(422).send("Invalid Token");
+    }
+    const recoverUser = await User.findById({ _id: user._id });
+
+    // HASH PASSWORD
+    const salt = await brcrypt.genSalt(10);
+    const hashedPassword = await brcrypt.hash(password, salt);
+
+    recoverUser.password = hashedPassword;
+
+    await recoverUser.save();
+
+    res.send({ message: "Password reset successfully" });
+  } catch (err) {
+    res.status(422).send(err);
   }
 });
 
@@ -152,7 +222,7 @@ router.patch("/profile", isAuth, async (req, res) => {
   }
 });
 
-router.put("/password", isAuth, async (req, res) => {
+router.put("/reset", isAuth, async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
     const compare = await brcrypt.compare(req.body.oldPassword, user.password);
@@ -174,7 +244,7 @@ router.put("/password", isAuth, async (req, res) => {
       }
     );
 
-    res.json({ status: "Password changed." });
+    res.json({ message: "Password changed." });
   } catch (err) {
     res.status(400).send(err);
   }
