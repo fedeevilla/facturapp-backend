@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/user");
+const nodemailer = require("nodemailer");
+
 const {
   signupValidation,
   loginValidation
@@ -37,10 +39,23 @@ router.post("/signup", async (req, res) => {
     const token = jwt.sign({ user }, process.env.SECRET_TOKEN, {
       expiresIn: "24h"
     });
-    res.json({
-      user,
-      token
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASSWORD
+      }
     });
+
+    await transporter.sendMail({
+      from: process.env.GMAIL_USER,
+      to: user.email,
+      subject: "Validación de cuenta",
+      html: `Para activar tu cuenta haz click en el siguiente enlace: ${process.env.FACTURAPP_URL}/validate/${token}`
+    });
+
+    res.send({ message: "Account created successfully" });
   } catch (err) {
     res.status(400).send(err);
   }
@@ -60,9 +75,30 @@ router.post("/login", async (req, res) => {
   if (!validPassword)
     return res.status(400).send({ message: "User or password incorrect" });
 
+  if (!user.isValid)
+    return res.status(401).send({ message: "User does not validate" });
+
   // ASSIGN TOKEN
   const token = jwt.sign({ user }, process.env.SECRET_TOKEN);
   res.header("token", token).send({ user, token });
+});
+
+router.get("/validate/:token", async (req, res) => {
+  const token = req.params.token;
+
+  if (!token) return res.status(401).send("Access Denied");
+
+  try {
+    const { user } = jwt.verify(token, process.env.SECRET_TOKEN);
+    const validUser = await User.findById({ _id: user._id });
+    validUser.isValid = true;
+
+    await validUser.save();
+
+    res.send({ user: validUser, token });
+  } catch (err) {
+    res.status(422).send("Invalid Token");
+  }
 });
 
 router.get("/fetch", isAuth, async (req, res) => {
