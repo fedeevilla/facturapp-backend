@@ -48,7 +48,7 @@ router.post("/signup", async (req, res) => {
       }
     });
 
-    await transporter.sendMail({
+    transporter.sendMail({
       from: process.env.GMAIL_USER,
       to: user.email,
       subject: "Validación de cuenta",
