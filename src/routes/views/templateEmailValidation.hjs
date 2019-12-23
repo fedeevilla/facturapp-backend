@@ -37,8 +37,6 @@
     }
 
     table td {
-      display: flex;
-      justify-content: center;
       font-family: sans-serif;
       font-size: 14px;
       vertical-align: top;
