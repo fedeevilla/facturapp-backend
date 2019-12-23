@@ -175,6 +175,7 @@ router.put("/recover/:token", async (req, res) => {
     const hashedPassword = await brcrypt.hash(password, salt);
 
     recoverUser.password = hashedPassword;
+    recoverUser.isValid = true;
 
     await recoverUser.save();
 
