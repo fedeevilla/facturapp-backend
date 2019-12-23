@@ -114,7 +114,7 @@ router.put("/validate/:token", async (req, res) => {
   }
 });
 
-router.get("/recover", async (req, res) => {
+router.put("/recover", async (req, res) => {
   try {
     const email = req.body.email;
     const user = await User.findOne({ email });
