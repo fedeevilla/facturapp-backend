@@ -17,7 +17,7 @@ const R = require("ramda");
 router.post("/signup", async (req, res) => {
   // VALIDATIONS
   const { error } = signupValidation(req.body);
-  if (error) return res.status(400).send({ message: error.details[0].message });
+  if (error) return res.status(422).send({ message: error.details[0].message });
 
   const emailExist = await User.findOne({ email: req.body.email });
   if (emailExist)
@@ -77,7 +77,7 @@ router.post("/signup", async (req, res) => {
 router.post("/login", async (req, res) => {
   // VALIDATIONS
   const { error } = loginValidation(req.body);
-  if (error) return res.status(400).send({ message: error.details[0].message });
+  if (error) return res.status(422).send({ message: error.details[0].message });
 
   const user = await User.findOne({ email: req.body.email });
   if (!user)
@@ -118,6 +118,8 @@ router.put("/recover", async (req, res) => {
   try {
     const email = req.body.email;
     const user = await User.findOne({ email });
+
+    if (!user) return res.status(400).send({ message: "User doest not found" });
 
     // ASSIGN TOKEN
     const token = jwt.sign({ user }, process.env.SECRET_TOKEN, {
@@ -217,7 +219,7 @@ router.patch("/profile", isAuth, async (req, res) => {
     await User.updateOne({ _id: req.user._id }, query);
     const updatedUser = await User.findOne({ _id: req.user._id });
 
-    res.send({ user: updatedUser });
+    res.send(updatedUser);
   } catch (err) {
     res.status(400).send(err);
   }
@@ -238,12 +240,7 @@ router.put("/reset", isAuth, async (req, res) => {
     const salt = await brcrypt.genSalt(10);
     const hashedPassword = await brcrypt.hash(req.body.newPassword, salt);
 
-    await User.updateOne(
-      { _id: req.user._id },
-      {
-        password: hashedPassword
-      }
-    );
+    await user.save({ password: hashedPassword });
 
     res.json({ message: "Password changed." });
   } catch (err) {
