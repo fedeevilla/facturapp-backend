@@ -5,6 +5,8 @@ const InvoiceSchema = new Schema({
   idUser: { type: String, required: true },
   date: { type: Number, required: true },
   amount: { type: Number, required: true },
+  type: { type: String, required: true },
+  provider: { type: String },
   dollar: { type: Number, default: 0 },
   pdf: { type: String }
 });
