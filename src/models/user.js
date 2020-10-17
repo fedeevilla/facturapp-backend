@@ -7,10 +7,14 @@ const UserSchema = new Schema({
   password: { type: String, required: true, min: 6, max: 1024 },
   avatar: { type: String, default: null },
   isValid: { type: Boolean, default: false },
-  createdAt: { type: Number, default: new Date().getTime() }
+  createdAt: {
+    type: Number,
+    default: new Date().getTime(),
+  },
+  usdBalance: { type: Number, default: 0 },
 });
 
-UserSchema.methods.toJSON = function() {
+UserSchema.methods.toJSON = function () {
   var obj = this.toObject();
   delete obj.password;
   delete obj.__v;

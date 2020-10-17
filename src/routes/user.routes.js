@@ -7,7 +7,7 @@ const fs = require("fs");
 
 const {
   signupValidation,
-  loginValidation
+  loginValidation,
 } = require("../validations/userValidations");
 const isAuth = require("../middlewares/isAuth");
 const brcrypt = require("bcryptjs");
@@ -32,22 +32,22 @@ router.post("/signup", async (req, res) => {
     const userDB = new User({
       name: req.body.name,
       email: req.body.email,
-      password: hashedPassword
+      password: hashedPassword,
     });
 
     const user = await userDB.save();
 
     // ASSIGN TOKEN
     const token = jwt.sign({ user }, process.env.SECRET_TOKEN, {
-      expiresIn: "24h"
+      expiresIn: "24h",
     });
 
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
         user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASSWORD
-      }
+        pass: process.env.GMAIL_PASSWORD,
+      },
     });
 
     const template = fs.readFileSync(
@@ -64,8 +64,8 @@ router.post("/signup", async (req, res) => {
       html: compiledTemplate.render({
         name: user.name,
         token,
-        url: process.env.FACTURAPP_URL
-      })
+        url: process.env.FACTURAPP_URL,
+      }),
     });
 
     res.send({ message: "Account created successfully" });
@@ -123,15 +123,15 @@ router.put("/recover", async (req, res) => {
 
     // ASSIGN TOKEN
     const token = jwt.sign({ user }, process.env.SECRET_TOKEN, {
-      expiresIn: "24h"
+      expiresIn: "24h",
     });
 
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
         user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASSWORD
-      }
+        pass: process.env.GMAIL_PASSWORD,
+      },
     });
 
     const template = fs.readFileSync(
@@ -148,8 +148,8 @@ router.put("/recover", async (req, res) => {
       html: compiledTemplate.render({
         name: user.name,
         token,
-        url: process.env.FACTURAPP_URL
-      })
+        url: process.env.FACTURAPP_URL,
+      }),
     });
 
     res.send({ message: "Email sended" });
@@ -199,7 +199,7 @@ router.patch("/profile", isAuth, async (req, res) => {
     const user = await User.findOne({ _id: req.user._id });
     if (!user)
       return res.status(400).send({
-        message: "User does not exists"
+        message: "User does not exists",
       });
 
     //Email Validation
@@ -225,6 +225,23 @@ router.patch("/profile", isAuth, async (req, res) => {
   }
 });
 
+router.patch("/balance", isAuth, async (req, res) => {
+  try {
+    const user = await User.findOne({ _id: req.user._id });
+    if (!user)
+      return res.status(400).send({
+        message: "User does not exists",
+      });
+
+    await User.updateOne({ _id: req.user._id }, req.body);
+    const updatedUser = await User.findOne({ _id: req.user._id });
+
+    res.send(updatedUser);
+  } catch (err) {
+    res.status(400).send(err);
+  }
+});
+
 router.put("/reset", isAuth, async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
@@ -232,7 +249,7 @@ router.put("/reset", isAuth, async (req, res) => {
 
     if (!compare) {
       return res.status(400).send({
-        message: "Wrong password"
+        message: "Wrong password",
       });
     }
 
