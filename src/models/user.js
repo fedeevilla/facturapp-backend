@@ -12,6 +12,8 @@ const UserSchema = new Schema({
     default: new Date().getTime(),
   },
   usdBalance: { type: Number, default: 0 },
+  usdBankUS: { type: Number, default: 0 },
+  usdBankAR: { type: Number, default: 0 },
 });
 
 UserSchema.methods.toJSON = function () {
