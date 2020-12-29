@@ -42,31 +42,33 @@ router.post("/signup", async (req, res) => {
       expiresIn: "24h",
     });
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASSWORD,
-      },
-    });
+    //TODO Comment these lines because Gmail Provider does not work well.
 
-    const template = fs.readFileSync(
-      __dirname + "/views/templateEmailValidation.hjs",
-      "utf-8"
-    );
+    // const transporter = nodemailer.createTransport({
+    //   service: "gmail",
+    //   auth: {
+    //     user: process.env.GMAIL_USER,
+    //     pass: process.env.GMAIL_PASSWORD,
+    //   },
+    // });
 
-    const compiledTemplate = Hogan.compile(template);
+    // const template = fs.readFileSync(
+    //   __dirname + "/views/templateEmailValidation.hjs",
+    //   "utf-8"
+    // );
 
-    transporter.sendMail({
-      from: process.env.GMAIL_USER,
-      to: user.email,
-      subject: "Validación de cuenta",
-      html: compiledTemplate.render({
-        name: user.name,
-        token,
-        url: process.env.FACTURAPP_URL,
-      }),
-    });
+    // const compiledTemplate = Hogan.compile(template);
+
+    // transporter.sendMail({
+    //   from: process.env.GMAIL_USER,
+    //   to: user.email,
+    //   subject: "Validación de cuenta",
+    //   html: compiledTemplate.render({
+    //     name: user.name,
+    //     token,
+    //     url: process.env.FACTURAPP_URL,
+    //   }),
+    // });
 
     res.send({ message: "Account created successfully" });
   } catch (err) {

@@ -6,7 +6,7 @@ const UserSchema = new Schema({
   email: { type: String, required: true, min: 6, max: 255 },
   password: { type: String, required: true, min: 6, max: 1024 },
   avatar: { type: String, default: null },
-  isValid: { type: Boolean, default: false },
+  isValid: { type: Boolean, default: true },
   createdAt: {
     type: Number,
     default: new Date().getTime(),
