@@ -31,7 +31,9 @@ app.use("/api/user", require("./routes/user.routes"));
 
 app.get("/eth", (_, res) => {
   axios
-    .get("https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD")
+    .get(
+      "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD&api_key=431bf409440eb30047e7d6e02782d9e4adf7112448de143eae6d080afd532cce"
+    )
     .then(({ data }) => {
       res.json(data);
     });
