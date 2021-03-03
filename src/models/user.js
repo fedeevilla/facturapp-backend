@@ -15,6 +15,7 @@ const UserSchema = new Schema({
   usdBankUS: { type: Number, default: 0 },
   usdBankAR: { type: Number, default: 0 },
   isPremiun: { type: Boolean, default: false },
+  limit: { type: Number, default: 0 }
 });
 
 UserSchema.methods.toJSON = function () {
